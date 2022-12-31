@@ -5,29 +5,33 @@ use mdbook::{
   preprocess::{CmdPreprocessor, Preprocessor},
   MDBook,
 };
-use std::path::PathBuf;
-use tempfile::tempdir;
+use std::path::Path;
+use tempfile::{tempdir, TempDir};
 
 use crate::{processor::SimplePreprocessorDriver, SimplePreprocessor};
 
 pub struct MdbookTestHarness {
-  pub dir: PathBuf,
+  dir: TempDir,
 }
 
 impl MdbookTestHarness {
   pub fn new() -> Result<Self> {
-    let dir = tempdir()?.into_path();
-    let builder = MDBook::init(&dir);
+    let dir = tempdir()?;
+    let builder = MDBook::init(dir.path());
     builder.build()?;
     Ok(MdbookTestHarness { dir })
   }
 
+  pub fn root(&self) -> &Path {
+    self.dir.path()
+  }
+
   pub fn compile<P: SimplePreprocessor>(&self, config: serde_json::Value) -> Result<Book> {
-    let book = load_book(self.dir.join("src"), &BuildConfig::default())?;
+    let book = load_book(self.root().join("src"), &BuildConfig::default())?;
     let json = serde_json::json!(
       [
         {
-          "root": self.dir.display().to_string(),
+          "root": self.root().display().to_string(),
           "config": {
             "preprocessor": {
               P::name(): config,

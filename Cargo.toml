@@ -1,10 +1,11 @@
 [package]
 name = "mdbook-preprocessor-utils"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Will Crichton <crichton.will@gmail.com>"]
 description = "Utilities for writing mdBook preprocessors"
 license = "MIT"
 edition = "2021"
+repository = "https://github.com/willcrichton/mdbook-preprocessor-utils"
 
 [features]
 testing = ["tempfile"]
