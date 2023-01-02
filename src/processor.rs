@@ -11,6 +11,7 @@ use mdbook::{
   preprocess::{Preprocessor, PreprocessorContext},
   BookItem,
 };
+use rayon::prelude::*;
 
 #[derive(Copy, Clone)]
 pub struct Asset {
@@ -117,30 +118,31 @@ impl<P: SimplePreprocessor> Preprocessor for SimplePreprocessorDriver<P> {
       .build_global()
       .unwrap();
 
-    rayon::scope(|s| {
-      fn for_each_mut<'scope, 'proc: 'scope, 'item: 'scope, P: SimplePreprocessor>(
-        s: &rayon::Scope<'scope>,
-        ctxt: &'proc SimplePreprocessorDriverCtxt<P>,
-        items: impl IntoIterator<Item = &'item mut BookItem>,
-      ) {
-        for item in items {
-          if let BookItem::Chapter(chapter) = item {
-            if chapter.path.is_some() {
-              s.spawn(|_| {
-                let chapter_path_abs = ctxt.src_dir.join(chapter.path.as_ref().unwrap());
-                let chapter_dir = chapter_path_abs.parent().unwrap();
-                ctxt
-                  .process_chapter(chapter_dir, &mut chapter.content)
-                  .unwrap();
-              });
-              for_each_mut(s, ctxt, &mut chapter.sub_items);
-            }
+    fn for_each_mut<'a, P: SimplePreprocessor>(
+      ctxt: &SimplePreprocessorDriverCtxt<P>,
+      chapters: &mut Vec<(PathBuf, &'a mut String)>,
+      items: impl IntoIterator<Item = &'a mut BookItem>,
+    ) {
+      for item in items {
+        if let BookItem::Chapter(chapter) = item {
+          if chapter.path.is_some() {
+            let chapter_path_abs = ctxt.src_dir.join(chapter.path.as_ref().unwrap());
+            let chapter_dir = chapter_path_abs.parent().unwrap().to_path_buf();
+            chapters.push((chapter_dir, &mut chapter.content));
+
+            for_each_mut(ctxt, chapters, &mut chapter.sub_items);
           }
         }
       }
+    }
 
-      for_each_mut(s, &ctxt, &mut book.sections);
-    });
+    let mut chapters = Vec::new();
+    for_each_mut(&ctxt, &mut chapters, &mut book.sections);
+
+    chapters
+      .into_par_iter()
+      .map(|(chapter_dir, content)| ctxt.process_chapter(&chapter_dir, content))
+      .collect::<Result<Vec<_>>>()?;
 
     Ok(book)
   }
