@@ -111,13 +111,6 @@ impl<P: SimplePreprocessor> Preprocessor for SimplePreprocessorDriver<P> {
     let ctxt = SimplePreprocessorDriverCtxt { sp, src_dir };
     ctxt.copy_assets()?;
 
-    // Limit size of thread pool to avoid OS resource exhaustion
-    let nproc = std::thread::available_parallelism().map_or(1, |n| n.get());
-    rayon::ThreadPoolBuilder::new()
-      .num_threads(nproc)
-      .build_global()
-      .unwrap();
-
     fn for_each_mut<'a, P: SimplePreprocessor>(
       ctxt: &SimplePreprocessorDriverCtxt<P>,
       chapters: &mut Vec<(PathBuf, &'a mut String)>,
