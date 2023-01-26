@@ -1,6 +1,6 @@
 [package]
 name = "mdbook-preprocessor-utils"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["Will Crichton <crichton.will@gmail.com>"]
 description = "Utilities for writing mdBook preprocessors"
 license = "MIT"
