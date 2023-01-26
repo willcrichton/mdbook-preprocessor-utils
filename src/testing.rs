@@ -5,7 +5,7 @@ use mdbook::{
   preprocess::{CmdPreprocessor, Preprocessor},
   MDBook,
 };
-use std::path::Path;
+use std::{env, path::Path};
 use tempfile::{tempdir, TempDir};
 
 use crate::{processor::SimplePreprocessorDriver, SimplePreprocessor};
@@ -44,6 +44,8 @@ impl MdbookTestHarness {
       ]
     );
     let json_str = serde_json::to_string(&json)?;
+
+    env::set_current_dir(self.root())?;
 
     let preprocessor = SimplePreprocessorDriver::<P>::new();
     let (ctx, book) = CmdPreprocessor::parse_input(json_str.as_bytes())?;

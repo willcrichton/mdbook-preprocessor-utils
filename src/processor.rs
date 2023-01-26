@@ -39,6 +39,7 @@ pub trait SimplePreprocessor: Sized + Send + Sync {
   fn replacements(&self, chapter_dir: &Path, content: &str) -> Result<Vec<(Range<usize>, String)>>;
   fn linked_assets(&self) -> Vec<Asset>;
   fn all_assets(&self) -> Vec<Asset>;
+  fn finish(self) {}
 }
 
 struct SimplePreprocessorDriverCtxt<P: SimplePreprocessor> {
@@ -136,6 +137,8 @@ impl<P: SimplePreprocessor> Preprocessor for SimplePreprocessorDriver<P> {
       .into_par_iter()
       .map(|(chapter_dir, content)| ctxt.process_chapter(&chapter_dir, content))
       .collect::<Result<Vec<_>>>()?;
+
+    ctxt.sp.finish();
 
     Ok(book)
   }
