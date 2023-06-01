@@ -83,6 +83,7 @@ impl<P: SimplePreprocessor> SimplePreprocessorDriverCtxt<P> {
         let asset_str = asset_rel.display().to_string();
         let link = match &*asset_rel.extension().unwrap().to_string_lossy() {
           "js" => format!(r#"<script type="text/javascript" src="{asset_str}"></script>"#),
+          "mjs" => format!(r#"<script type="module" src="{asset_str}"></script>"#),
           "css" => format!(r#"<link rel="stylesheet" type="text/css" href="{asset_str}">"#),
           _ => continue,
         };

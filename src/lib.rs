@@ -13,6 +13,7 @@ pub mod testing;
 
 pub use mdbook;
 pub use processor::{Asset, SimplePreprocessor};
+pub use rayon;
 
 #[derive(Parser)]
 #[clap(author, version, about)]
