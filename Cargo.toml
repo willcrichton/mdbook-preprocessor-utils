@@ -3,7 +3,7 @@ name = "mdbook-preprocessor-utils"
 version = "0.1.6"
 authors = ["Will Crichton <crichton.will@gmail.com>"]
 description = "Utilities for writing mdBook preprocessors"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 edition = "2021"
 repository = "https://github.com/willcrichton/mdbook-preprocessor-utils"
 
