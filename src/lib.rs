@@ -14,10 +14,14 @@ use mdbook::{
 };
 use semver::{Version, VersionReq};
 
+mod copy_assets;
+mod html;
 mod processor;
 #[cfg(feature = "testing")]
 pub mod testing;
 
+pub use copy_assets::copy_assets;
+pub use html::HtmlElementBuilder;
 pub use mdbook;
 pub use processor::{Asset, SimplePreprocessor};
 pub use rayon;

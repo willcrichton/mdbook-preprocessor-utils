@@ -62,8 +62,10 @@ impl<P: SimplePreprocessor> SimplePreprocessorDriverCtxt<P> {
   }
 
   fn process_chapter(&self, chapter_dir: &Path, content: &mut String) -> Result<()> {
-    let replacements = self.sp.replacements(chapter_dir, content)?;
+    let mut replacements = self.sp.replacements(chapter_dir, content)?;
     if !replacements.is_empty() {
+      replacements.sort_by_key(|(range, _)| range.start);
+
       for (range, html) in replacements.into_iter().rev() {
         content.replace_range(range, &html);
       }
