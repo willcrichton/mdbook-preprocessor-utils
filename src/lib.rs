@@ -5,7 +5,7 @@ use std::{
 };
 
 use chrono::Local;
-use clap::{Parser, Subcommand};
+use clap::{arg, Command, CommandFactory};
 use env_logger::Builder;
 use log::LevelFilter;
 use mdbook::{
@@ -25,18 +25,6 @@ pub use html::HtmlElementBuilder;
 pub use mdbook;
 pub use processor::{Asset, SimplePreprocessor};
 pub use rayon;
-
-#[derive(Parser)]
-#[clap(author, version, about)]
-struct Args {
-  #[clap(subcommand)]
-  command: Option<Command>,
-}
-
-#[derive(Subcommand)]
-enum Command {
-  Supports { renderer: String },
-}
 
 // This is copied verbatim from mdbook so the style is consistent.
 // https://github.com/rust-lang/mdBook/blob/94e0a44e152d8d7c62620e83e0632160977b1dd5/src/main.rs#L97-L121
@@ -69,14 +57,23 @@ fn init_logger() {
 pub fn main<P: SimplePreprocessor>() {
   init_logger();
 
-  let args = Args::parse();
+  let args = P::Args::command()
+    .subcommand(Command::new("supports").arg(arg!(<renderer> "Checks if renderer is supported")))
+    .get_matches();
+
   let preprocessor = processor::SimplePreprocessorDriver::<P>::new();
 
-  if let Some(Command::Supports { renderer }) = args.command {
-    handle_supports(&preprocessor, &renderer);
-  } else if let Err(e) = handle_preprocessing(&preprocessor) {
-    eprintln!("{}", e);
-    process::exit(1);
+  match args.subcommand() {
+    Some(("supports", m)) => {
+      let renderer = m.get_one::<String>("renderer").unwrap();
+      handle_supports(&preprocessor, renderer);
+    }
+    _ => {
+      if let Err(e) = handle_preprocessing(&preprocessor) {
+        eprintln!("{}", e);
+        process::exit(1);
+      }
+    }
   }
 }
 

@@ -34,6 +34,7 @@ macro_rules! asset_generator {
 }
 
 pub trait SimplePreprocessor: Sized + Send + Sync {
+  type Args: clap::CommandFactory;
   fn name() -> &'static str;
   fn build(ctx: &PreprocessorContext) -> Result<Self>;
   fn replacements(&self, chapter_dir: &Path, content: &str) -> Result<Vec<(Range<usize>, String)>>;

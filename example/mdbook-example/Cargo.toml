@@ -1,0 +1,10 @@
+[package]
+name = "mdbook-example"
+version = "0.1.0"
+edition = "2021"
+authors = ["Will Crichton <crichton.will@gmail.com>"]
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+mdbook = "0.4.40"
+mdbook-preprocessor-utils = { path = "../../" }
