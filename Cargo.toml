@@ -15,7 +15,7 @@ repository = "https://github.com/willcrichton/mdbook-preprocessor-utils"
 testing = ["tempfile"]
 
 [dependencies]
-clap = {version = "4", default-features = false, features = ["derive", "std"]}
+clap = {version = "4", default-features = false}
 mdbook = {version = "0.4", default-features = false}
 semver = "1"
 anyhow = "1"
