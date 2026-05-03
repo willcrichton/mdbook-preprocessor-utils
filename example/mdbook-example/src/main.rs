@@ -16,7 +16,9 @@ impl SimplePreprocessor for ExamplePreprocessor {
     "example"
   }
 
-  fn build(_ctx: &mdbook::preprocess::PreprocessorContext) -> mdbook::errors::Result<Self> {
+  fn build(
+    _ctx: &mdbook_preprocessor::PreprocessorContext,
+  ) -> mdbook_preprocessor::errors::Result<Self> {
     Ok(ExamplePreprocessor)
   }
 
@@ -24,8 +26,8 @@ impl SimplePreprocessor for ExamplePreprocessor {
     &self,
     _chapter_dir: &Path,
     _content: &str,
-  ) -> mdbook::errors::Result<Vec<(Range<usize>, String)>> {
-    Ok(Vec::new())
+  ) -> mdbook_preprocessor::errors::Result<Vec<(Range<usize>, String)>> {
+    Ok(vec![(12..14, "Hello world!".into())])
   }
 
   fn linked_assets(&self) -> Vec<mdbook_preprocessor_utils::Asset> {

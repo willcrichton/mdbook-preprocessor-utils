@@ -6,11 +6,15 @@ use std::{
 };
 
 use anyhow::Result;
-use mdbook::{
-  book::Book,
-  preprocess::{Preprocessor, PreprocessorContext},
-  BookItem,
+use mdbook_preprocessor::{
+  Preprocessor, PreprocessorContext,
+  book::{Book, BookItem},
 };
+// use mdbook::{
+//   book::Book,
+//   preprocess::{Preprocessor, PreprocessorContext},
+//   BookItem,
+// };
 use rayon::prelude::*;
 
 #[derive(Copy, Clone)]
@@ -122,20 +126,20 @@ impl<P: SimplePreprocessor> Preprocessor for SimplePreprocessorDriver<P> {
       items: impl IntoIterator<Item = &'a mut BookItem>,
     ) {
       for item in items {
-        if let BookItem::Chapter(chapter) = item {
-          if chapter.path.is_some() {
-            let chapter_path_abs = ctxt.src_dir.join(chapter.path.as_ref().unwrap());
-            let chapter_dir = chapter_path_abs.parent().unwrap().to_path_buf();
-            chapters.push((chapter_dir, &mut chapter.content));
+        if let BookItem::Chapter(chapter) = item
+          && let Some(path) = &chapter.path
+        {
+          let chapter_path_abs = ctxt.src_dir.join(path);
+          let chapter_dir = chapter_path_abs.parent().unwrap().to_path_buf();
+          chapters.push((chapter_dir, &mut chapter.content));
 
-            for_each_mut(ctxt, chapters, &mut chapter.sub_items);
-          }
+          for_each_mut(ctxt, chapters, &mut chapter.sub_items);
         }
       }
     }
 
     let mut chapters = Vec::new();
-    for_each_mut(&ctxt, &mut chapters, &mut book.sections);
+    for_each_mut(&ctxt, &mut chapters, &mut book.items);
 
     chapters
       .into_par_iter()

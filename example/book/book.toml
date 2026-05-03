@@ -1,8 +1,8 @@
 [book]
 authors = ["Will Crichton"]
 language = "en"
-multilingual = false
 src = "src"
 title = "Example"
 
 [preprocessor.example]
+command = "cargo run --manifest-path ../mdbook-example/Cargo.toml --bin mdbook-example"

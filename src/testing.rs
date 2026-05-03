@@ -1,14 +1,10 @@
 use anyhow::Result;
-use mdbook::{
-  book::{load_book, Book},
-  config::BuildConfig,
-  preprocess::{CmdPreprocessor, Preprocessor},
-  MDBook,
-};
+use mdbook_driver::MDBook;
+use mdbook_preprocessor::{Preprocessor, book::Book};
 use std::{env, path::Path};
-use tempfile::{tempdir, TempDir};
+use tempfile::{TempDir, tempdir};
 
-use crate::{processor::SimplePreprocessorDriver, SimplePreprocessor};
+use crate::{SimplePreprocessor, processor::SimplePreprocessorDriver};
 
 pub struct MdbookTestHarness {
   dir: TempDir,
@@ -27,7 +23,7 @@ impl MdbookTestHarness {
   }
 
   pub fn compile<P: SimplePreprocessor>(&self, config: serde_json::Value) -> Result<Book> {
-    let book = load_book(self.root().join("src"), &BuildConfig::default())?;
+    let book = MDBook::load(self.root())?;
     let json = serde_json::json!(
       [
         {
@@ -40,7 +36,7 @@ impl MdbookTestHarness {
           "renderer": "html",
           "mdbook_version": "0.1.0"
         },
-        serde_json::to_value(&book)?
+        serde_json::to_value(&book.book)?
       ]
     );
     let json_str = serde_json::to_string(&json)?;
@@ -48,7 +44,7 @@ impl MdbookTestHarness {
     env::set_current_dir(self.root())?;
 
     let preprocessor = SimplePreprocessorDriver::<P>::new();
-    let (ctx, book) = CmdPreprocessor::parse_input(json_str.as_bytes())?;
+    let (ctx, book) = mdbook_preprocessor::parse_input(json_str.as_bytes())?;
     let book = preprocessor.run(&ctx, book)?;
 
     Ok(book)
